@@ -46,7 +46,7 @@ array[$lastIdx]=$(expr ${array[$lastIdx]} + 1)
 buildVersionNum="${array[0]}"
 for (( i=1; i<$vlen; i=i+1 ))
 do
-buildVersionNum="${versionNum}.${array[i]}"
+buildVersionNum="${buildVersionNum}.${array[i]}"
 done
 /usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildVersionNum" "$plist"
 echo "Incremented build number to $buildVersionNum"
