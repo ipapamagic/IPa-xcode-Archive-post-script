@@ -11,17 +11,35 @@
 plist="$PROJECT_DIR/$INFOPLIST_FILE"
 buildVersionNum=$(/usr/libexec/Plistbuddy -c "Print CFBundleVersion" "$plist")
 if [ -z "$buildVersionNum" ]; then
-echo "No build number in $plist"
+    echo "No build number in $plist"
 exit 2
 fi
-while getopts a:t: option
+while getopts a:t:g: option
 do
-case "${option}"
-in
-a) API_TOKEN=${OPTARG};;
-t) TEAM_TOKEN=${OPTARG};;
-esac
+    case "${option}"
+    in
+    a) API_TOKEN=${OPTARG};;
+    t) TEAM_TOKEN=${OPTARG};;
+    g) GIT_TAG_PREFIX=${OPTARG};;
+    esac
 done
+#generate note from git
+COMMIT_LOG="Build uploaded automatically from Xcode."
+if [ ! -z "$GIT_TAG_PREFIX" ]; then
+    cd "${PROJECT_DIR}"
+    targetTag=$(git describe --match "$GIT_TAG_PREFIX*")
+    if [[ -z $targetTag ]]
+    then
+        COMMIT_LOG=$(git log --reverse --format="%b %s")
+    else
+        IFS="-" read -a array <<< "$targetTag"
+        targetTag="${array[0]}"
+        COMMIT_LOG=$(git log --reverse --format="%b %s" $targetTag..HEAD)
+    fi
+    git tag -a "$GIT_TAG_PREFIX$buildVersionNum" -m "$GIT_TAG_PREFIX$buildVersionNum"
+    echo "add tag $GIT_TAG_PREFIX$buildVersionNum to current commit"
+fi
+
 #zip dsym
 #DATE=`date +%Y%m%d`
 ZIPPED_DSYM_OUTPUT_FILE_PATH="${PROJECT_DIR}/${PRODUCT_NAME}.dsym.zip"
@@ -36,8 +54,9 @@ xcrun -sdk iphoneos PackageApplication "$appPath" -o "$ipaPath" --sign "${CODE_S
 -F file=@"$ipaPath" \
 -F api_token="${API_TOKEN}" \
 -F team_token="${TEAM_TOKEN}" \
--F notes="Build uploaded automatically from Xcode." \
+-F notes="$COMMIT_LOG" \
 -F dsym=@"$ZIPPED_DSYM_OUTPUT_FILE_PATH"
+
 #delete ipa
 rm "$ipaPath"
 
