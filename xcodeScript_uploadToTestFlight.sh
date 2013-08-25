@@ -22,7 +22,11 @@ a) API_TOKEN=${OPTARG};;
 t) TEAM_TOKEN=${OPTARG};;
 esac
 done
-
+#zip dsym
+#DATE=`date +%Y%m%d`
+ZIPPED_DSYM_OUTPUT_FILE_PATH="${PROJECT_DIR}/${PRODUCT_NAME}.dsym.zip"
+cd "$ARCHIVE_DSYMS_PATH"
+zip -r "$ZIPPED_DSYM_OUTPUT_FILE_PATH" "$DWARF_DSYM_FILE_NAME"
 #create ipa
 ipaPath="${PROJECT_DIR}/${PRODUCT_NAME}.ipa"
 appPath="$ARCHIVE_PRODUCTS_PATH/$INSTALL_PATH/$WRAPPER_NAME"
@@ -32,10 +36,14 @@ xcrun -sdk iphoneos PackageApplication "$appPath" -o "$ipaPath" --sign "${CODE_S
 -F file=@"$ipaPath" \
 -F api_token="${API_TOKEN}" \
 -F team_token="${TEAM_TOKEN}" \
--F notes="Build uploaded automatically from Xcode."
-
+-F notes="Build uploaded automatically from Xcode." \
+-F dsym=@"$ZIPPED_DSYM_OUTPUT_FILE_PATH"
 #delete ipa
 rm "$ipaPath"
+
+#delete zip dsym
+rm "$ZIPPED_DSYM_OUTPUT_FILE_PATH"
+
 
 #increase build version number
 
