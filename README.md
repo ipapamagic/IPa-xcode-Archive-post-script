@@ -20,7 +20,7 @@ xcodeScript_uploadToAppStore.sh
 ------------------------
 
 this script will automatically upload product to apple store
-run script with:
+run script with argument -a appleID -w password
 
     bash xcodeScript_uploadToAppStore.sh -a appleID -w password
 
@@ -31,6 +31,7 @@ xcodeScript_uploadToTestFlight.sh
 ------------------------
 
 this script will automatically upload product to testflight
+run script with argument -a api_token -t team_token -g git_tag_prefix
 
     bash xcodeScript_uploadToTestFlight.sh -a api_token -t team_token -g git_tag_prefix
 
