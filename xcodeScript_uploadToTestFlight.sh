@@ -78,5 +78,13 @@ done
 /usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildVersionNum" "$plist"
 echo "Incremented build number to $buildVersionNum"
 
+#commit plist to git
+if [ ! -z "$GIT_TAG_PREFIX" ]; then
+    git add "$plist"
+    git commit -m "build version $buildVersionNum"
+#git push
+fi
+
+
 #open testflight page
 /usr/bin/open "https://testflightapp.com/dashboard/builds/"

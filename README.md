@@ -20,12 +20,16 @@ xcodeScript_uploadToAppStore.sh
 ------------------------
 
 this script will automatically upload product to apple store
-run script with argument -a appleID -w password
+run script with argument -a appleID -w password -g git_tag_prefix
 
     bash xcodeScript_uploadToAppStore.sh -a appleID -w password
 
 this script will create an item named Xcode:itunesconnect.apple.com
 and after uploaded will delete this item
+
+-g is an optional argument,this will integrate with git,each time it upload to App Store
+
+this script will automatically add a tag with prefix (argument come with -g) 
 
 xcodeScript_uploadToTestFlight.sh
 ------------------------

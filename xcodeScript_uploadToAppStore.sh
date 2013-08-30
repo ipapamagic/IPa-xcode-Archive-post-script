@@ -30,17 +30,23 @@ appPath="$ARCHIVE_PRODUCTS_PATH/$INSTALL_PATH/$WRAPPER_NAME"
 xcrun -sdk iphoneos PackageApplication "$appPath" -o "$ipaPath" --sign "${CODE_SIGN_IDENTITY}"
 
 #upload to app store
-while getopts a:w: option
+while getopts a:w:g: option
 do
 case "${option}"
 in
 a) LOGIN=${OPTARG};;
 w) PASSWORD=${OPTARG};;
+g) GIT_TAG_PREFIX=${OPTARG};;
 esac
 done
 security add-generic-password -s "Xcode:itunesconnect.apple.com" -a "$LOGIN" -w "$PASSWORD" -U
 xcrun -sdk iphoneos Validation -online -upload -verbose "$ipaPath"
 security delete-generic-password -s Xcode:itunesconnect.apple.com -a "$LOGIN"
+#check git integrate
+if [ ! -z "$GIT_TAG_PREFIX" ]; then
+    git tag -a "$GIT_TAG_PREFIX$versionNum" -m "$GIT_TAG_PREFIX$versionNum"
+    echo "add tag $GIT_TAG_PREFIX$versionNum to current commit"
+fi
 #delete ipa
 rm "$ipaPath"
 
@@ -59,3 +65,10 @@ buildnum="${versionNum}.0"
 /usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildnum" "$plist"
 /usr/libexec/Plistbuddy -c "Set CFBundleShortVersionString $versionNum" "$plist"
 echo "Incremented version number to $versionNum"
+
+#commit plist to git
+if [ ! -z "$GIT_TAG_PREFIX" ]; then
+git add "$plist"
+git commit -m "version $versionNum"
+#git push
+fi
