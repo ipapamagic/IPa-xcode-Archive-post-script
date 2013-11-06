@@ -55,7 +55,8 @@ xcrun -sdk iphoneos PackageApplication "$appPath" -o "$ipaPath" --sign "${CODE_S
 -F api_token="${API_TOKEN}" \
 -F team_token="${TEAM_TOKEN}" \
 -F notes="$COMMIT_LOG" \
--F dsym=@"$ZIPPED_DSYM_OUTPUT_FILE_PATH"
+-F dsym=@"$ZIPPED_DSYM_OUTPUT_FILE_PATH" \
+-F replace=True
 
 #delete ipa
 rm "$ipaPath"
