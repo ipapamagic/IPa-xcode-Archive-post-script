@@ -39,6 +39,7 @@ w) PASSWORD=${OPTARG};;
 g) GIT_TAG_PREFIX=${OPTARG};;
 esac
 done
+if [ ! -z $LOGIN ] && [ ! -z $PASSWORD]; then
 security add-generic-password -s "Xcode:itunesconnect.apple.com" -a "$LOGIN" -w "$PASSWORD" -U
 xcrun -sdk iphoneos Validation -online -upload -verbose "$ipaPath"
 security delete-generic-password -s Xcode:itunesconnect.apple.com -a "$LOGIN"
@@ -49,7 +50,7 @@ if [ ! -z "$GIT_TAG_PREFIX" ]; then
 fi
 #delete ipa
 rm "$ipaPath"
-
+fi
 #increase version number
 
 IFS='.' read -a array <<< "$versionNum"

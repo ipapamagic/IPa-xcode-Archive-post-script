@@ -30,11 +30,11 @@ if [ ! -z "$GIT_TAG_PREFIX" ]; then
     targetTag=$(git describe --match "$GIT_TAG_PREFIX*")
     if [[ -z $targetTag ]]
     then
-        COMMIT_LOG=$(git log --reverse --format="%b %s")
+        COMMIT_LOG=$(echo $(git log --reverse --format="%b %s"))
     else
         IFS="-" read -a array <<< "$targetTag"
         targetTag="${array[0]}"
-        COMMIT_LOG=$(git log --reverse --format="%b %s" $targetTag..HEAD)
+        COMMIT_LOG=$(echo $(git log --reverse --format="%b %s" $targetTag..HEAD))
     fi
     git tag -a "$GIT_TAG_PREFIX$buildVersionNum" -m "$GIT_TAG_PREFIX$buildVersionNum"
     echo "add tag $GIT_TAG_PREFIX$buildVersionNum to current commit"
@@ -48,6 +48,7 @@ zip -r "$ZIPPED_DSYM_OUTPUT_FILE_PATH" "$DWARF_DSYM_FILE_NAME"
 #create ipa
 ipaPath="${PROJECT_DIR}/${PRODUCT_NAME}.ipa"
 appPath="$ARCHIVE_PRODUCTS_PATH/$INSTALL_PATH/$WRAPPER_NAME"
+echo "use code sign ${CODE_SIGN_IDENTITY}"
 xcrun -sdk iphoneos PackageApplication "$appPath" -o "$ipaPath" --sign "${CODE_SIGN_IDENTITY}"
 
 /usr/bin/curl "http://testflightapp.com/api/builds.json" \
