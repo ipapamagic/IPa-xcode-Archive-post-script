@@ -39,15 +39,14 @@ w) PASSWORD=${OPTARG};;
 g) GIT_TAG_PREFIX=${OPTARG};;
 esac
 done
-if [ ! -z $LOGIN ] && [ ! -z $PASSWORD]; then
+if [ ! -z $LOGIN ] && [ ! -z $PASSWORD ]
+then
 security add-generic-password -s "Xcode:itunesconnect.apple.com" -a "$LOGIN" -w "$PASSWORD" -U
 xcrun -sdk iphoneos Validation -online -upload -verbose "$ipaPath"
 security delete-generic-password -s Xcode:itunesconnect.apple.com -a "$LOGIN"
 #check git integrate
-if [ ! -z "$GIT_TAG_PREFIX" ]; then
-    git tag -a "$GIT_TAG_PREFIX$versionNum" -m "$GIT_TAG_PREFIX$versionNum"
-    echo "add tag $GIT_TAG_PREFIX$versionNum to current commit"
-fi
+GIT_TAG_VERSIONNUM=$versionNum
+
 #delete ipa
 rm "$ipaPath"
 fi
@@ -62,14 +61,28 @@ for (( i=1; i<$vlen; i=i+1 ))
 do
 versionNum="${versionNum}.${array[i]}"
 done
-buildnum="${versionNum}.0"
+buildnum="${versionNum}.1"
 /usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildnum" "$plist"
 /usr/libexec/Plistbuddy -c "Set CFBundleShortVersionString $versionNum" "$plist"
 echo "Incremented version number to $versionNum"
 
 #commit plist to git
 if [ ! -z "$GIT_TAG_PREFIX" ]; then
+#ask should integrate git
+USE_GIT=`/usr/bin/osascript << EOT
+tell application "Xcode"
+display dialog "Commit to git?" buttons {"NO", "YES"} \
+default button "YES"
+set result to button returned of result
+end tell
+EOT`
+if [[ $USE_GIT == "YES" ]]
+then
+cd "${PROJECT_DIR}"
+git tag -a "$GIT_TAG_PREFIX$GIT_TAG_VERSIONNUM" -m "$GIT_TAG_PREFIX$GIT_TAG_VERSIONNUM"
+echo "add tag $GIT_TAG_PREFIX$GIT_TAG_VERSIONNUM to current commit"
 git add "$plist"
 git commit -m "version $versionNum"
+fi
 #git push
 fi
