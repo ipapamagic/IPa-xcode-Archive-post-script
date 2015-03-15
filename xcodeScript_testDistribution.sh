@@ -13,7 +13,7 @@ if [ -z "$buildVersionNum" ]; then
     echo "No build number in $plist"
 exit 2
 fi
-while getopts g:r: option
+while getopts g:r:v: option
 do
     case "${option}"
     in
@@ -39,18 +39,19 @@ if [ ! -z "$GIT_TAG_PREFIX" ]; then
 fi
 
 #increase build version number
+agvtool next-version -all
 
-IFS='.' read -a array <<< "$buildVersionNum"
-vlen="${#array[@]}"
-lastIdx=$((vlen-1))
-array[$lastIdx]=$(expr ${array[$lastIdx]} + 1)
-buildVersionNum="${array[0]}"
-for (( i=1; i<$vlen; i=i+1 ))
-do
-buildVersionNum="${buildVersionNum}.${array[i]}"
-done
-/usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildVersionNum" "$plist"
-echo "Incremented build number to $buildVersionNum"
+#IFS='.' read -a array <<< "$buildVersionNum"
+#vlen="${#array[@]}"
+#lastIdx=$((vlen-1))
+#array[$lastIdx]=$(expr ${array[$lastIdx]} + 1)
+#buildVersionNum="${array[0]}"
+#for (( i=1; i<$vlen; i=i+1 ))
+#do
+#buildVersionNum="${buildVersionNum}.${array[i]}"
+#done
+#/usr/libexec/Plistbuddy -c "Set CFBundleVersion $buildVersionNum" "$plist"
+#echo "Incremented build number to $buildVersionNum"
 
 #commit plist to git
 if [ ! -z "$GIT_TAG_PREFIX" ]; then
